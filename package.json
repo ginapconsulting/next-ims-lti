@@ -1,18 +1,27 @@
 {
   "name": "next-ims-lti",
-  "version": "0.1.2",
-  "description": "",
-  "main": "./lib/index.js",
-  "typings": "./lib/index.js",
+  "version": "1.0.0",
+  "description": "Next.js LTI middleware",
+  "sideEffects": false,
+  "private": false,
+  "types": "./dist/@types/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "scripts": {
-    "prepublish": "npm run lint && npm run _build && npm run _test",
-    "build": "npm run lint && npm run _build",
-    "_build": "babel src --out-dir lib --ignore '**/*.test.js'",
-    "test": "npm run lint && npm run _test",
-    "posttest": "cowsay Your tests all passed!",
-    "_test": "echo",
-    "test:watch": "jest --watch",
-    "lint": "eslint src"
+    "build": "npm run clean && node build.js && npm run tsc",
+    "clean": "rimraf dist",
+    "dev": "esbuild src/test.ts --bundle --format=cjs --outfile=out/index.cjs && node out/index.cjs",
+    "tsc": "tsc --emitDeclarationOnly --outDir ./dist/@types"
   },
   "author": "Abdhesh Nayak",
   "license": "MIT",
@@ -30,42 +39,50 @@
     "ui",
     "frontend"
   ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@babel/polyfill": "^7.12.1",
+    "body-parser": "^1.19.2",
+    "next": "^12.0.0 || ^13.0.0",
+    "ims-lti": "^3.0.2"
+  },
+  "peerDependencies": {
     "body-parser": "^1.19.2",
     "ims-lti": "^3.0.2",
-    "next-cookie": "^2.8.0"
+    "next": "^12.0.0 || ^13.0.0",
+    "next-cookie": "^2.0.0 || ^3.0.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@babel/core": "^7.16.7",
-    "@babel/eslint-parser": "^7.16.5",
-    "@babel/preset-env": "^7.16.8",
-    "@babel/preset-react": "^7.16.7",
-    "@madhouselabs/eslint-config-next": "^1.0.0",
-    "@madhouselabs/eslint-config-react": "^1.0.5",
-    "@madhouselabs/eslint-config-react-base": "^1.0.2",
-    "autoprefixer": "^10.4.2",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "^8.2.4",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "eslint": "^8.6.0",
-    "eslint-config-airbnb": "^19.0.4",
+    "@types/body-parser": "^1.19.3",
+    "@types/react": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "esbuild": "^0.19.2",
+    "eslint": "^8.47.0",
+    "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-jsconfig": "^1.1.0",
     "eslint-import-resolver-node": "^0.3.6",
-    "eslint-import-resolver-webpack": "^0.13.2",
+    "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prefer-arrow-functions": "^3.1.4",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
-    "pino-pretty": "^7.3.0",
-    "prettier": "^2.5.1",
-    "react": "^18.0.0"
+    "prettier": "^2.8.8",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.2.2"
   }
 }

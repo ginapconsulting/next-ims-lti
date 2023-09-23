@@ -1,13 +1,16 @@
-import '@babel/polyfill';
 import lti from 'ims-lti';
 import bodyParser from 'body-parser';
 import { useCookie as getCookie } from 'next-cookie';
+import { GetServerSidePropsContext } from 'next';
 
-const setMiddleware = (req, res) => {
+import { IncomingMessage, ServerResponse } from 'http';
+
+const setMiddleware = (
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<{ req: IncomingMessage; res: ServerResponse }> => {
   return new Promise((resolve) => {
-    // @ts-ignore
     bodyParser.urlencoded({ extended: true })(req, res, () => {
-      // @ts-ignore
       bodyParser.json()(req, res, () => {
         resolve({ req, res });
       });
@@ -15,7 +18,7 @@ const setMiddleware = (req, res) => {
   });
 };
 
-const toBase64 = (str) => {
+const toBase64 = (str: string): string => {
   let _str;
   try {
     _str = Buffer.from(Buffer.from(str).toString('base64')).toString('base64');
@@ -25,7 +28,7 @@ const toBase64 = (str) => {
   }
 };
 
-const toNormalString = (str) => {
+const toNormalString = (str: string): string => {
   let _str;
   try {
     _str = Buffer.from(
@@ -38,12 +41,27 @@ const toNormalString = (str) => {
   }
 };
 
-const verifyLti = ({ ctx, request, key, secret, persist, cookieOptions }) => {
+interface VerifyLti {
+  ctx: GetServerSidePropsContext;
+  request: any;
+  key: string;
+  secret: string;
+  persist: boolean;
+  cookieOptions?: any;
+}
+
+const verifyLti = ({
+  ctx,
+  request,
+  key,
+  secret,
+  persist,
+  cookieOptions,
+}: VerifyLti) => {
   return new Promise((resolve) => {
-    // @ts-ignore
     const moodleData = new lti.Provider(key, secret);
 
-    moodleData.valid_request(request, (err, isValid) => {
+    moodleData.valid_request(request, (err: Error, isValid: boolean) => {
       const cookie = getCookie(ctx);
       if (!isValid) {
         if (persist) {
@@ -73,13 +91,21 @@ const verifyLti = ({ ctx, request, key, secret, persist, cookieOptions }) => {
   });
 };
 
+interface GetLtiContext {
+  ctx: GetServerSidePropsContext;
+  key: string;
+  secret: string;
+  persist: boolean;
+  cookieOptions?: any;
+}
+
 const getLtiContext = async ({
   ctx,
   key,
   secret,
   persist,
   cookieOptions = {},
-}) => {
+}: GetLtiContext) => {
   const { req, res } = ctx;
 
   if (req.method === 'POST') {
