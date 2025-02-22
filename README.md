@@ -1,15 +1,15 @@
-# next-ims-lti
+# next-ims-lti-ssl
 
 ## Installation
 
 ```bash
-npm i next-ims-lti
+npm i next-ims-lti-ssl
 ```
 
 ## Example
 
 ```jsx
-import getLtiContext from 'next-ims-lti';
+import getLtiContext from 'next-ims-lti-ssl';
 
 const App = ({ context }) => {
   return (

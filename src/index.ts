@@ -4,11 +4,20 @@ import { useCookie as getCookie } from 'next-cookie';
 import { GetServerSidePropsContext } from 'next';
 
 import { IncomingMessage, ServerResponse } from 'http';
+import { TLSSocket } from 'tls';
 
-const setMiddleware = (
+const addProtocol = (req: IncomingMessage, res: ServerResponse) => {
+  const protocol = req.headers['x-forwarded-proto'] || 
+                   ((req.connection as TLSSocket).encrypted ? 'https' : 'http');
+  (req as any).protocol = protocol; // Temporary cast if not extending types
+  return req;
+}
+
+const setMiddleware = async (
   req: IncomingMessage,
   res: ServerResponse
 ): Promise<{ req: IncomingMessage; res: ServerResponse }> => {
+
   return new Promise((resolve) => {
     bodyParser.urlencoded({ extended: true })(req, res, () => {
       bodyParser.json()(req, res, () => {
@@ -109,7 +118,8 @@ const getLtiContext = async ({
   const { req, res } = ctx;
 
   if (req.method === 'POST') {
-    const { req: request } = await setMiddleware(req, res);
+    const req2 = addProtocol(req, res);
+    const { req: request } = await setMiddleware(req2, res);
     const lticontext = await verifyLti({
       ctx,
       request,
